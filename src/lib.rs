@@ -26,9 +26,7 @@ impl EtFile {
             encoder.write_all(&file_data)?;
 
             let file_data_comp = encoder.finish()?;
-
             let file_size = file.metadata()?.len() as u32;
-            println!("{:?}", file_data_comp);
             let file_size_comp = file_data_comp.len() as u32;
 
             return Ok(Self {
@@ -51,14 +49,11 @@ impl EtFile {
         let mut data: Vec<u8> = vec![];
 
         // fill with null
+        // FBSTR[256]
         let mut file_location = self.file_location.clone().into_bytes();
         file_location.resize(256, 0);
 
-        // FBSTR[256]
         data.extend(file_location);
-
-        println!("{}", self.file_size_comp);
-
         data.extend(self.file_size_comp.to_le_bytes());
         data.extend(self.file_size.to_le_bytes());
         data.extend(self.file_size_comp.to_le_bytes());
