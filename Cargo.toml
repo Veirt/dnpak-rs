@@ -1,8 +1,8 @@
 [package]
-name = "dnpak-rs"
+name = "dnpak"
 authors  = ["Muhammad Dony Mulya <vveirt@gmail.com>"]
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-flate2 = "1.0.22"
+flate2 = { version = "1.0.22", features = ["zlib-ng-compat"], default-features = false }
