@@ -1,11 +1,12 @@
 use crate::etfile::EtFile;
 use crate::utils;
 
-use std::fs;
-use std::io::SeekFrom;
+use glob::glob;
+use std::io::{ErrorKind, SeekFrom};
 use std::os::unix::prelude::FileExt;
 use std::path::Path;
 use std::{error::Error, fs::File, io::prelude::*};
+use std::{fs, io};
 
 const HEADER_MAGIC: &str = "EyedentityGames Packing File 0.1";
 
@@ -24,11 +25,11 @@ pub struct EtFileSystem {
 }
 
 impl EtFileSystem {
-    pub fn write(file_name: String) -> Self {
+    pub fn write(file_name: &str) -> Self {
         let mut pak = Self {
             mode: OpenMode::Write,
             file: File::create(&file_name).unwrap(),
-            file_name,
+            file_name: file_name.to_string(),
             file_count: 0,
             offset: 0,
             files: Vec::new(),
@@ -40,11 +41,11 @@ impl EtFileSystem {
         pak
     }
 
-    pub fn read(file_name: String) -> Self {
+    pub fn read(file_name: &str) -> Self {
         let mut pak = Self {
             mode: OpenMode::Read,
             file: File::open(&file_name).unwrap(),
-            file_name,
+            file_name: file_name.to_string(),
             file_count: 0,
             offset: 0,
             files: Vec::new(),
@@ -80,7 +81,8 @@ impl EtFileSystem {
             let mut buf = [0; 4];
 
             // new etfile object
-            let mut file = EtFile::new(None, location).unwrap();
+            let mut file = EtFile::new(None, &location)
+                .unwrap_or_else(|_| panic!("Cannot create etfile with location: {}", location));
 
             // filesizecomp
             pak.file.read_exact(&mut buf).unwrap();
@@ -112,14 +114,14 @@ impl EtFileSystem {
         pak
     }
 
-    pub fn unpack(&mut self, out_dir: Option<String>) -> Result<(), Box<dyn Error>> {
+    pub fn unpack(&self, out_dir: Option<String>) -> Result<(), Box<dyn Error>> {
         // out directory
         // by default the pak name
         let out_dir: &str =
-            &out_dir.unwrap_or(self.file_name[..self.file_name.len() - 4].to_string());
+            &out_dir.unwrap_or_else(|| self.file_name[..self.file_name.len() - 4].to_string());
 
         for file in &self.files {
-            let file_location = utils::convert_path(&file.path); // path of the file. Windows Path by default
+            let file_location = utils::to_normal_path(&file.path); // path of the file. Windows Path by default
 
             // absolute path of the file
             // out_dir/file_location
@@ -139,8 +141,42 @@ impl EtFileSystem {
         file_name: String,
         file_location: String,
     ) -> Result<(), Box<dyn Error>> {
+        let mut file_location = file_location;
+
+        if file_location.starts_with('\\') {
+            file_location = format!("\\{}", file_location);
+        };
+
         self.files
-            .push(EtFile::new(Some(file_name), file_location)?);
+            .push(EtFile::new(Some(&file_name), &file_location)?);
+
+        Ok(())
+    }
+
+    pub fn add_files(&mut self, directory: &str) -> Result<(), Box<dyn Error>> {
+        //TODO: add files inside folder
+        if !fs::metadata(&directory).unwrap().is_dir() {
+            let directory_error =
+                io::Error::new(ErrorKind::InvalidInput, String::from("Not a directory"));
+
+            return Err(Box::new(directory_error));
+        }
+
+        for file in glob(&format!("{}/**/*.*", &directory)).expect("Failed to read glob pattern") {
+            let relative_path = format!(
+                "\\{}",
+                file.as_ref()
+                    .unwrap()
+                    .strip_prefix(&directory)
+                    .unwrap()
+                    .display()
+                    .to_string()
+                    .replace("/", "\\")
+            );
+
+            let etfile = EtFile::new(file?.to_str(), &relative_path)?;
+            self.files.push(etfile);
+        }
 
         Ok(())
     }

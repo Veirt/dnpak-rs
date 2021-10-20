@@ -14,9 +14,9 @@ pub(crate) struct EtFile {
 }
 
 impl EtFile {
-    pub(crate) fn new(file_name: Option<String>, path: String) -> Result<Self, Box<dyn Error>> {
+    pub(crate) fn new(file_name: Option<&str>, path: &str) -> Result<Self, Box<dyn Error>> {
         if let Some(file_name) = file_name {
-            let mut file = File::open(&file_name)?;
+            let mut file = File::open(file_name)?;
 
             let mut file_data: Vec<u8> = Vec::new();
             file.read_to_end(&mut file_data)?;
@@ -29,7 +29,7 @@ impl EtFile {
             let comp_size = comp_data.len() as u32;
 
             return Ok(Self {
-                path,
+                path: path.to_string(),
                 comp_data,
                 data_offset: 0,
                 file_size,
@@ -39,7 +39,7 @@ impl EtFile {
         }
 
         Ok(Self {
-            path,
+            path: path.to_string(),
             comp_data: Vec::new(),
             data_offset: 0,
             file_size: 0,
