@@ -3,7 +3,6 @@ use crate::utils;
 
 use glob::glob;
 use std::io::{ErrorKind, SeekFrom};
-use std::os::unix::prelude::FileExt;
 use std::path::Path;
 use std::{error::Error, fs::File, io::prelude::*};
 use std::{fs, io};
@@ -99,10 +98,20 @@ impl EtFileSystem {
 
             let mut filedatacomp = vec![];
             filedatacomp.resize(file.alloc_size as usize, 0);
+            cfg_if::cfg_if! {
+                if #[cfg(unix)] {
+                    use std::os::unix::prelude::FileExt;
 
-            pak.file
-                .read_exact_at(&mut filedatacomp, file.data_offset as u64)
-                .unwrap();
+                    pak.file
+                        .read_exact_at(&mut filedatacomp, file.data_offset as u64)
+                        .unwrap();
+                } else if #[cfg(windows)] {
+                    use std::os::windows::prelude::FileExt;
+                    pak.file
+                        .seek_read(&mut filedatacomp, file.data_offset as u64)
+                        .unwrap();
+                }
+            }
 
             file.comp_data = filedatacomp;
 
