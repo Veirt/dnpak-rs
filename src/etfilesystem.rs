@@ -163,15 +163,19 @@ impl EtFileSystem {
     }
 
     pub fn add_files(&mut self, directory: &str) -> Result<(), Box<dyn Error>> {
-        //TODO: add files inside folder
-        if !fs::metadata(&directory).unwrap().is_dir() {
+        let directory_path = Path::new(&directory)
+            .file_name()
+            .unwrap()
+            .to_os_string()
+            .into_string()
+            .unwrap();
+
+        if !fs::metadata(&directory_path).unwrap().is_dir() {
             let directory_error =
                 io::Error::new(ErrorKind::InvalidInput, String::from("Not a directory"));
 
             return Err(Box::new(directory_error));
         }
-
-        let directory_path = Path::new(&directory).display().to_string();
 
         for file in
             glob(&format!("{}/**/*.*", directory_path)).expect("Failed to read glob pattern")
@@ -180,7 +184,7 @@ impl EtFileSystem {
                 "\\{}",
                 file.as_ref()
                     .unwrap()
-                    .strip_prefix(&directory)
+                    .strip_prefix(&directory_path)
                     .unwrap()
                     .display()
                     .to_string()
