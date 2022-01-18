@@ -4,7 +4,7 @@ description = "A Rust implementation of Dragon Nest PAK structure file"
 authors  = ["Muhammad Dony Mulya <vveirt@gmail.com>"]
 version = "1.2.0"
 license = "WTFPL"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 flate2 = { version = "1.0.22", features = ["zlib"], default-features = false }
