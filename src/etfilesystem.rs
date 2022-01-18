@@ -171,7 +171,11 @@ impl EtFileSystem {
             return Err(Box::new(directory_error));
         }
 
-        for file in glob(&format!("{}/**/*.*", &directory)).expect("Failed to read glob pattern") {
+        let directory_path = Path::new(&directory).display().to_string();
+
+        for file in
+            glob(&format!("{}/**/*.*", directory_path)).expect("Failed to read glob pattern")
+        {
             let relative_path = format!(
                 "\\{}",
                 file.as_ref()
