@@ -2,7 +2,7 @@
 name = "dnpak"
 description = "A Rust implementation of Dragon Nest PAK structure file"
 authors  = ["Muhammad Dony Mulya <vveirt@gmail.com>"]
-version = "1.3.2"
+version = "1.3.3"
 license = "WTFPL"
 edition = "2021"
 
