@@ -145,6 +145,15 @@ impl EtFileSystem {
         Ok(())
     }
 
+    pub fn get_files(&self) -> Vec<&EtFile> {
+        let mut file_list = Vec::new();
+        for file in &self.files {
+            file_list.push(file);
+        }
+
+        file_list
+    }
+
     pub fn add_file(
         &mut self,
         file_name: String,

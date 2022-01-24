@@ -1,16 +1,23 @@
+use std::fmt;
 use std::{error::Error, fs::File, io::prelude::*};
 
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
 
-pub(crate) struct EtFile {
+pub struct EtFile {
     pub(crate) path: String,
     pub(crate) comp_data: Vec<u8>,
     pub(crate) file_size: u32,
     pub(crate) comp_size: u32,
     pub(crate) data_offset: u32,
     pub(crate) alloc_size: u32,
+}
+
+impl fmt::Display for EtFile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.path)
+    }
 }
 
 impl EtFile {
