@@ -142,6 +142,11 @@ impl EtFileSystem {
         Ok(())
     }
 
+    pub fn find_files(&self, name: &str) -> Vec<&EtFile> {
+        let filtered = self.files.iter().filter(|file| file.path.contains(name));
+        filtered.collect()
+    }
+
     pub fn get_files(&self) -> Vec<&EtFile> {
         let mut file_list = Vec::new();
         for file in &self.files {
