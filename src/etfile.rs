@@ -1,9 +1,12 @@
-use std::fmt;
+use std::path::Path;
 use std::{error::Error, fs::File, io::prelude::*};
+use std::{fmt, fs};
 
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
+
+use crate::utils;
 
 pub struct EtFile {
     pub(crate) path: String,
@@ -53,6 +56,21 @@ impl EtFile {
             comp_size: 0,
             alloc_size: 0,
         })
+    }
+
+    pub fn unpack(&self, out_dir: &str) -> Result<(), Box<dyn Error>> {
+        let file_location = utils::to_normal_path(&self.path); // path of the file. Windows Path by default
+
+        // absolute path of the file
+        // out_dir/file_location
+        let absolute_path = Path::new(out_dir).join(&file_location);
+
+        // make the directory
+        fs::create_dir_all(&absolute_path.parent().unwrap())?;
+
+        fs::write(absolute_path, &self.get_decompressed_data())?;
+
+        Ok(())
     }
 
     pub(crate) fn get_compressed_data(&self) -> &Vec<u8> {

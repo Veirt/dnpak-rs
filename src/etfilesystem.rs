@@ -1,5 +1,4 @@
 use crate::etfile::EtFile;
-use crate::utils;
 
 use glob::glob;
 use std::io::{ErrorKind, SeekFrom};
@@ -130,23 +129,14 @@ impl EtFileSystem {
         pak
     }
 
-    pub fn unpack(&self, out_dir: Option<String>) -> Result<(), Box<dyn Error>> {
+    pub fn unpack_all(&self, out_dir: Option<String>) -> Result<(), Box<dyn Error>> {
         // out directory
         // by default the pak name
         let out_dir: &str =
             &out_dir.unwrap_or_else(|| self.file_name[..self.file_name.len() - 4].to_string());
 
         for file in &self.files {
-            let file_location = utils::to_normal_path(&file.path); // path of the file. Windows Path by default
-
-            // absolute path of the file
-            // out_dir/file_location
-            let absolute_path = Path::new(out_dir).join(&file_location);
-
-            // make the directory
-            fs::create_dir_all(&absolute_path.parent().unwrap())?;
-
-            fs::write(absolute_path, &file.get_decompressed_data())?;
+            file.unpack(out_dir)?;
         }
 
         Ok(())
