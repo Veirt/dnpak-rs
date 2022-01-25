@@ -89,6 +89,13 @@ impl EtFileSystem {
             // filesize
             pak.file.read_exact(&mut buf).unwrap();
             file.file_size = u32::from_le_bytes(buf);
+
+            // skip when the file size is 0
+            // probably deleted file
+            if file.comp_size == 0 && file.file_size == 0 {
+                continue;
+            }
+
             // allocsize
             pak.file.read_exact(&mut buf).unwrap();
             file.alloc_size = u32::from_le_bytes(buf);
