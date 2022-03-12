@@ -58,7 +58,7 @@ impl EtFile {
         })
     }
 
-    pub fn unpack(&self, out_dir: &str) -> Result<(), Box<dyn Error>> {
+    pub fn unpack(&self, out_dir: &str) -> Result<String, Box<dyn Error>> {
         let file_location = utils::to_normal_path(&self.path); // path of the file. Windows Path by default
 
         // absolute path of the file
@@ -70,7 +70,7 @@ impl EtFile {
 
         fs::write(absolute_path, &self.get_decompressed_data())?;
 
-        Ok(())
+        Ok(file_location)
     }
 
     pub(crate) fn get_compressed_data(&self) -> &Vec<u8> {

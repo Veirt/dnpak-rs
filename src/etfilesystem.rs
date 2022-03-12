@@ -129,14 +129,18 @@ impl EtFileSystem {
         pak
     }
 
-    pub fn unpack_all(&self, out_dir: Option<String>) -> Result<(), Box<dyn Error>> {
+    pub fn unpack_all(&self, out_dir: Option<String>, debug: bool) -> Result<(), Box<dyn Error>> {
         // out directory
         // by default the pak name
         let out_dir: &str =
             &out_dir.unwrap_or_else(|| self.file_name[..self.file_name.len() - 4].to_string());
 
         for file in &self.files {
-            file.unpack(out_dir)?;
+            let unpacked_file = file.unpack(out_dir)?;
+
+            if debug {
+                println!("{}", unpacked_file);
+            }
         }
 
         Ok(())
