@@ -52,7 +52,7 @@ impl EtFileSystem {
         let mut buf = [0u8; 4];
 
         // seek to skip magic version (256 bytes)
-        // and version (4bits)
+        // and version (4 bytes)
         pak.file.seek(SeekFrom::Start(260)).unwrap();
         pak.file.read_exact(&mut buf).unwrap();
         pak.file_count = u32::from_le_bytes(buf);
@@ -104,10 +104,10 @@ impl EtFileSystem {
 
             let mut filedatacomp = vec![];
             filedatacomp.resize(file.alloc_size as usize, 0);
+
             cfg_if::cfg_if! {
                 if #[cfg(unix)] {
                     use std::os::unix::prelude::FileExt;
-
                     pak.file
                         .read_exact_at(&mut filedatacomp, file.data_offset as u64)
                         .unwrap();
@@ -148,16 +148,18 @@ impl EtFileSystem {
 
     pub fn find_files(&self, name: &str) -> Vec<&EtFile> {
         let filtered = self.files.iter().filter(|file| file.path.contains(name));
+
         filtered.collect()
     }
 
     pub fn get_files(&self) -> Vec<&EtFile> {
-        let mut file_list = Vec::new();
+        let mut files = Vec::new();
+
         for file in &self.files {
-            file_list.push(file);
+            files.push(file);
         }
 
-        file_list
+        files
     }
 
     pub fn add_file(
@@ -203,7 +205,7 @@ impl EtFileSystem {
                     .unwrap()
                     .display()
                     .to_string()
-                    .replace("/", "\\")
+                    .replace('/', "\\")
             );
 
             let etfile = EtFile::new(file?.to_str(), &relative_path)?;
