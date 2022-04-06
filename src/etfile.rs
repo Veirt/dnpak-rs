@@ -105,3 +105,47 @@ impl EtFile {
         data
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::EtFile;
+    use std::{error::Error, fs};
+
+    const FILE: &str = "./tests/data/version.cfg";
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_path() {
+        let _etfile =
+            EtFile::new(Some("./invalid-peko.cfg"), "/invalid.cfg").expect("Cannot find the path");
+    }
+
+    #[test]
+    fn test_get_decompressed_data() -> Result<(), Box<dyn Error>> {
+        let etfile = EtFile::new(Some(FILE), "/version.cfg").expect("Cannot create a new EtFile");
+
+        let decompressed = String::from_utf8(etfile.get_decompressed_data())?;
+
+        assert_eq!("Version 7", decompressed);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_unpack() -> Result<(), Box<dyn Error>> {
+        let etfile = EtFile::new(Some(FILE), "/version.cfg").expect("Cannot create a new EtFile");
+
+        etfile
+            .unpack("./tests/temp/unpack")
+            .expect("Cannot unpack EtFile");
+
+        let data_before: String = fs::read_to_string(FILE)?.parse()?;
+        let data_after: String = fs::read_to_string("./tests/temp/unpack/version.cfg")?.parse()?;
+
+        assert_eq!(data_before, data_after);
+
+        // cleanup
+        fs::remove_dir_all("./tests/temp/unpack").unwrap();
+        Ok(())
+    }
+}
