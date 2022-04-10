@@ -8,6 +8,7 @@ use flate2::Compression;
 
 use crate::utils;
 
+#[derive(Debug)]
 pub struct EtFile {
     pub(crate) path: String,
     pub(crate) comp_data: Vec<u8>,

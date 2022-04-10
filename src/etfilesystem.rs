@@ -92,6 +92,8 @@ impl EtFileSystem {
             // skip when the file size is 0
             // probably deleted file
             if file.comp_size == 0 && file.file_size == 0 {
+                current_offset += 316;
+
                 continue;
             }
 
@@ -135,6 +137,7 @@ impl EtFileSystem {
         let out_dir: &str =
             &out_dir.unwrap_or_else(|| self.file_name[..self.file_name.len() - 4].to_string());
 
+        println!("Total files: {}", self.files.len());
         for file in &self.files {
             let unpacked_file = file.unpack(out_dir)?;
 
