@@ -5,6 +5,7 @@ authors  = ["Muhammad Dony Mulya <vveirt@gmail.com>"]
 version = "2.1.1"
 license = "WTFPL"
 edition = "2021"
+exclude = ["/tests"]
 
 [dependencies]
 flate2 = { version = "1.0.22", features = ["zlib"], default-features = false }
