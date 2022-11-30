@@ -73,7 +73,7 @@ impl EtFileSystem {
             // convert utf-8 to string
             // split when byte is 0
             let iter: Vec<_> = location.split(|byte| byte == &0).collect();
-            let location = unsafe { String::from_utf8_unchecked(iter[0].to_vec()) };
+            let location = String::from_utf8_lossy(iter[0]);
 
             // temporary buf to store 4bytes of value
             let mut buf = [0; 4];

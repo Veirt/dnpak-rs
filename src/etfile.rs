@@ -67,7 +67,7 @@ impl EtFile {
         let absolute_path = Path::new(out_dir).join(&file_location);
 
         // make the directory
-        fs::create_dir_all(&absolute_path.parent().unwrap())?;
+        fs::create_dir_all(&*absolute_path.parent().unwrap())?;
 
         fs::write(absolute_path, &self.get_decompressed_data())?;
 
